@@ -1,0 +1,25 @@
+
+<div class="file-upload">
+  <div class="file-select">
+    <div class="file-select-button" id="fileName">Buscar archivo</div>
+    <div class="file-select-name" id="noFile">{{nombreArchivo}}</div> 
+    <input type="file" name="chooseFile" #inputFile (change)="leerArchivo($event)">
+  </div>
+</div>
+<br>
+<br>
+<div>
+  <table id="tblResult">
+    <thead>
+      <tr>
+        <td>Origen</td>
+        <td>Destino</td>
+        <td>Distancia</td>
+        <td>Tiempo</td>
+      </tr>
+    </thead>
+    <tbody>
+    </tbody>
+  </table>
+</div>
+
