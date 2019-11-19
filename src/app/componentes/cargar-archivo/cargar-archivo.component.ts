@@ -1,5 +1,6 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { GooglemapsService } from 'src/app/servicios';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-cargar-archivo',
@@ -55,37 +56,67 @@ export class CargarArchivoComponent implements OnInit {
   }
 
   getDataLocalStorage() {
-     return JSON.parse(localStorage.getItem('coordenadas'));
+    return JSON.parse(localStorage.getItem('coordenadas'));
   }
 
   obtenerDatosApi() {
     const data = this.getDataLocalStorage();
     if (Array.isArray(data)) {
-      let valorLinea: any[];
 
-      const origen = data[1].split('\t')[0];
-      let destinos = '';
+      let arr = this.obtenerOrigenesAPI(data);
+      let subscriptions: Subscription
 
-      data.forEach((linea, indice) => {
-        valorLinea = linea.split('\t');
+      arr.forEach((coord: any) => {
+        let suscription = this.googlemapsService.getData(coord)
+          .subscribe((data: any) => {
+            console.log(data);
+          }, (err: any) => {
+            console.error(err);
+          }, () => {
+            console.log('Fin');
+          });
 
-        if (indice > 0) {
-            destinos += valorLinea[1] + '|';
-        }
-      });
+        subscriptions.add(suscription);
+      })
 
-      destinos = destinos.substring(0, (destinos.length - 1));
-      this.googlemapsService.getData(origen, destinos)
-        .subscribe((coordenadas: any) => {
-          console.log(coordenadas);
-        }, (err: any) => {
-          console.error(err);
-        }, () => {
-          console.log('Fin');
-        } );
+
+      setTimeout(() => {
+        subscriptions.unsubscribe();
+      }, 5000);
     }
   }
 
+  private obtenerOrigenesAPI(lineas: any[]) {
+    let arr = [];
+    var o = {};
+    let add = false;
 
+    lineas.forEach((value) => {
+      if (value) {
+        let linea = value.split('\t');
 
+        if (!o['origen']) {
+          o['origen'] = linea[0];
+          o['destinos'] = linea[1];
+          add = true;
+        } else {
+          if (o['origen'] == linea[0]) {
+            o['destinos'] = o['destinos'] + '|' + linea[1];
+            add = false;
+          } else {
+            o = {};
+            o['origen'] = linea[0];
+            o['destinos'] = linea[1];
+            add = true;
+          }
+        }
+
+        if (add) {
+          arr.push(o)
+        }
+      }
+    })
+
+    return arr;
+  }
 }
