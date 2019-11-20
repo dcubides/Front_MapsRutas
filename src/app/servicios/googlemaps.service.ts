@@ -6,22 +6,22 @@ import { HttpClient } from '@angular/common/http';
 })
 export class GooglemapsService {
 
-url = 'https://maps.googleapis.com/maps/api/distancematrix/json?';
-origenes = 'origins={ORIGENES}';
-destinatario = '&destinations={DESTINATARIOS}';
-complemento = '&traffic_model(pessimistic)';
-key = '&key=AIzaSyDCBkMxNaBxFZNcQ8TPEVWUoTlpFhRonRQ';
+  url = 'https://maps.googleapis.com/maps/api/distancematrix/json?';
+  origenes = 'origins={ORIGENES}';
+  destinatario = '&destinations={DESTINATARIOS}';
+  complemento = '&traffic_model(pessimistic)';
+  key = '&key=AIzaSyDCBkMxNaBxFZNcQ8TPEVWUoTlpFhRonRQ';
 
-constructor(
-  private http: HttpClient
-) { }
+  constructor(
+    private http: HttpClient
+  ) { }
 
-getData(origenes: string, destinos: string) {
-  this.origenes = this.origenes.replace('{ORIGENES}', origenes);
-  this.destinatario = this.destinatario.replace('{DESTINATARIOS}', destinos);
+  getData(coord: any) {
+    this.origenes = this.origenes.replace('{ORIGENES}', coord.origen);
+    this.destinatario = this.destinatario.replace('{DESTINATARIOS}', coord.destinos);
 
-  const urlfinal = this.url + this.origenes + this.destinatario + this.complemento + this.key;
-  return this.http.get(urlfinal);
-}
+    const urlfinal = this.url + this.origenes + this.destinatario + this.complemento + this.key;
+    return this.http.get(urlfinal);
+  }
 
 }

@@ -1,5 +1,6 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
-import { GooglemapsService } from 'src/app/servicios';
+
+declare const google: any;
 
 @Component({
   selector: 'app-cargar-archivo',
@@ -7,13 +8,17 @@ import { GooglemapsService } from 'src/app/servicios';
   styleUrls: ['./cargar-archivo.component.css']
 })
 export class CargarArchivoComponent implements OnInit {
+  
 
   @ViewChild('inputFile') inputFile;
   archivo: any;
   nombreArchivo = 'Archivo no seleccionado...';
   info: any;
+  resultados = [];
+  iteraciones = [];
+
   constructor(
-    private googlemapsService: GooglemapsService
+ 
   ) { }
 
   ngOnInit() {
@@ -55,37 +60,72 @@ export class CargarArchivoComponent implements OnInit {
   }
 
   getDataLocalStorage() {
-     return JSON.parse(localStorage.getItem('coordenadas'));
+    return JSON.parse(localStorage.getItem('coordenadas'));
   }
 
   obtenerDatosApi() {
     const data = this.getDataLocalStorage();
     if (Array.isArray(data)) {
-      let valorLinea: any[];
 
-      const origen = data[1].split('\t')[0];
-      let destinos = '';
+      let arr = this.obtenerOrigenesAPI(data);
 
-      data.forEach((linea, indice) => {
-        valorLinea = linea.split('\t');
+      arr.forEach((coord: any, index: number) => {
+        this.iteraciones.push(index);
+        this.getDistancia([ coord.origen ], coord.destinos.split('|'))
+      })
 
-        if (indice > 0) {
-            destinos += valorLinea[1] + '|';
-        }
-      });
+      setTimeout(() => {
+        console.log(this.resultados)
+      }, 5000);
 
-      destinos = destinos.substring(0, (destinos.length - 1));
-      this.googlemapsService.getData(origen, destinos)
-        .subscribe((coordenadas: any) => {
-          console.log(coordenadas);
-        }, (err: any) => {
-          console.error(err);
-        }, () => {
-          console.log('Fin');
-        } );
     }
   }
 
+  private obtenerOrigenesAPI(lineas: any[]) {
+    let arr = [];
+    var o = {};
+    let add = false;
+
+    lineas.forEach((value) => {
+      if (value) {
+        let linea = value.split('\t');
+
+        if (!o['origen']) {
+          o['origen'] = linea[0];
+          o['destinos'] = linea[1];
+          add = true;
+        } else {
+          if (o['origen'] == linea[0]) {
+            o['destinos'] = o['destinos'] + '|' + linea[1];
+            add = false;
+          } else {
+            o = {};
+            o['origen'] = linea[0];
+            o['destinos'] = linea[1];
+            add = true;
+          }
+        }
+
+        if (add) {
+          arr.push(o)
+        }
+      }
+    })
+
+    return arr;
+  }
+
+  getDistancia(origen: any[], destinos: any[]) {
 
 
+
+    new google.maps.DistanceMatrixService()
+      .getDistanceMatrix({'origins': origen, 'destinations': destinos, travelMode: google.maps.TravelMode.DRIVING }, (results: any) => {
+        this.resultados.push(results);
+        //console.log(results);
+      //console.log('resultados distancia (mts) -- ', results.rows[0].elements[0].distance.value);
+    });
+
+    
+  }
 }
