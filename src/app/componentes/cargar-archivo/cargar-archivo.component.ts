@@ -1,6 +1,6 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
-import { GooglemapsService } from 'src/app/servicios';
-import { Subscription } from 'rxjs';
+
+declare const google: any;
 
 @Component({
   selector: 'app-cargar-archivo',
@@ -8,13 +8,17 @@ import { Subscription } from 'rxjs';
   styleUrls: ['./cargar-archivo.component.css']
 })
 export class CargarArchivoComponent implements OnInit {
+  
 
   @ViewChild('inputFile') inputFile;
   archivo: any;
   nombreArchivo = 'Archivo no seleccionado...';
   info: any;
+  resultados = [];
+  iteraciones = [];
+
   constructor(
-    private googlemapsService: GooglemapsService
+ 
   ) { }
 
   ngOnInit() {
@@ -64,25 +68,16 @@ export class CargarArchivoComponent implements OnInit {
     if (Array.isArray(data)) {
 
       let arr = this.obtenerOrigenesAPI(data);
-      let subscriptions: Subscription
 
-      arr.forEach((coord: any) => {
-        let suscription = this.googlemapsService.getData(coord)
-          .subscribe((data: any) => {
-            console.log(data);
-          }, (err: any) => {
-            console.error(err);
-          }, () => {
-            console.log('Fin');
-          });
-
-        subscriptions.add(suscription);
+      arr.forEach((coord: any, index: number) => {
+        this.iteraciones.push(index);
+        this.getDistancia([ coord.origen ], coord.destinos.split('|'))
       })
 
-
       setTimeout(() => {
-        subscriptions.unsubscribe();
+        console.log(this.resultados)
       }, 5000);
+
     }
   }
 
@@ -118,5 +113,19 @@ export class CargarArchivoComponent implements OnInit {
     })
 
     return arr;
+  }
+
+  getDistancia(origen: any[], destinos: any[]) {
+
+
+
+    new google.maps.DistanceMatrixService()
+      .getDistanceMatrix({'origins': origen, 'destinations': destinos, travelMode: google.maps.TravelMode.DRIVING }, (results: any) => {
+        this.resultados.push(results);
+        //console.log(results);
+      //console.log('resultados distancia (mts) -- ', results.rows[0].elements[0].distance.value);
+    });
+
+    
   }
 }

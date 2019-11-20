@@ -9,17 +9,25 @@
 <br>
 <br>
 <div>
-  <table id="tblResult">
-    <thead>
-      <tr>
-        <td>Origen</td>
-        <td>Destino</td>
-        <td>Distancia</td>
-        <td>Tiempo</td>
-      </tr>
-    </thead>
-    <tbody>
-    </tbody>
-  </table>
+   <!-- <div *ngIf="resultados.length > 0">
+      <table >
+          <thead>
+            <tr>
+              <td>Origen</td>
+              <td>Destino</td>
+              <td>Distancia</td>
+              <td>Tiempo</td>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let datos of item[t].destinationAddresses.length; let i = index">
+              <td>{{ datos.originAddresses[i] }}</td>
+              <td>{{ datos[i] }}</td>
+              <td>{{ datos.rows[0].elements[i].distance.text }}</td>
+              <td>{{ datos.rows[0].elements[i].duration.text }}</td>
+            </tr>
+          </tbody>
+        </table> 
+  </div> -->
 </div>
 
