@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
 
 declare const google: any;
 
@@ -8,23 +8,22 @@ declare const google: any;
   styleUrls: ['./cargar-archivo.component.css']
 })
 export class CargarArchivoComponent implements OnInit {
-  
 
   @ViewChild('inputFile') inputFile;
+  @ViewChild('container') container: ElementRef;
   archivo: any;
   nombreArchivo = 'Archivo no seleccionado...';
   info: any;
   resultados = [];
   iteraciones = [];
 
-  constructor(
- 
-  ) { }
+  constructor( ) { }
 
   ngOnInit() {
   }
 
   leerArchivo(event: any) {
+   // this.cleanContent();
     if (!event.target.files) {
       alert('No se ha seleccionado archivo');
     }
@@ -38,6 +37,8 @@ export class CargarArchivoComponent implements OnInit {
       this.nombreArchivo = 'Archivo no seleccionado...';
       return;
     }
+
+    this.cleanLocalStorage();
 
     const reader = new FileReader();
 
@@ -67,65 +68,59 @@ export class CargarArchivoComponent implements OnInit {
     const data = this.getDataLocalStorage();
     if (Array.isArray(data)) {
 
-      let arr = this.obtenerOrigenesAPI(data);
+      const arr = this.obtenerOrigenesAPI(data);
 
       arr.forEach((coord: any, index: number) => {
         this.iteraciones.push(index);
-        this.getDistancia([ coord.origen ], coord.destinos.split('|'))
-      })
-
-      setTimeout(() => {
-        console.log(this.resultados)
-      }, 5000);
-
+        this.getDistancia([ coord.origen ], coord.destinos.split('|'));
+      });
     }
   }
 
   private obtenerOrigenesAPI(lineas: any[]) {
-    let arr = [];
-    var o = {};
+    const arr = [];
+    let o: any = {};
     let add = false;
 
     lineas.forEach((value) => {
       if (value) {
-        let linea = value.split('\t');
+        const linea = value.split('\t');
 
-        if (!o['origen']) {
-          o['origen'] = linea[0];
-          o['destinos'] = linea[1];
+        if (!o.origen) {
+          o.origen = linea[0];
+          o.destinos = linea[1];
           add = true;
         } else {
-          if (o['origen'] == linea[0]) {
-            o['destinos'] = o['destinos'] + '|' + linea[1];
+          if (o.origen === linea[0]) {
+            o.destinos = o.destinos + '|' + linea[1];
             add = false;
           } else {
             o = {};
-            o['origen'] = linea[0];
-            o['destinos'] = linea[1];
+            o.origen = linea[0];
+            o.destinos = linea[1];
             add = true;
           }
         }
 
         if (add) {
-          arr.push(o)
+          arr.push(o);
         }
       }
-    })
+    });
 
     return arr;
   }
 
   getDistancia(origen: any[], destinos: any[]) {
-
-
-
     new google.maps.DistanceMatrixService()
-      .getDistanceMatrix({'origins': origen, 'destinations': destinos, travelMode: google.maps.TravelMode.DRIVING }, (results: any) => {
+      .getDistanceMatrix({origins: origen, destinations: destinos, travelMode: google.maps.TravelMode.DRIVING }, (results: any) => {
         this.resultados.push(results);
-        //console.log(results);
-      //console.log('resultados distancia (mts) -- ', results.rows[0].elements[0].distance.value);
     });
+  }
 
-    
+  cleanContent() {
+    if (this.container !== undefined) {
+      this.container.nativeElement.innerHTML = '';
+    }
   }
 }

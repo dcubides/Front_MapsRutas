@@ -1,33 +1,62 @@
 
+<div>
+  <h1>Calculo de rutas con coordenadas</h1>
+</div>
+
 <div class="file-upload">
   <div class="file-select">
     <div class="file-select-button" id="fileName">Buscar archivo</div>
-    <div class="file-select-name" id="noFile">{{nombreArchivo}}</div> 
-    <input type="file" name="chooseFile" #inputFile (change)="leerArchivo($event)">
+    <div class="file-select-name" id="noFile">{{nombreArchivo}}</div>
+    <input  type="file" name="chooseFile" #inputFile (change)="leerArchivo($event)">
   </div>
 </div>
 <br>
 <br>
 <div>
-   <!-- <div *ngIf="resultados.length > 0">
-      <table >
-          <thead>
-            <tr>
-              <td>Origen</td>
-              <td>Destino</td>
-              <td>Distancia</td>
-              <td>Tiempo</td>
-            </tr>
-          </thead>
-          <tbody>
-            <tr *ngFor="let datos of item[t].destinationAddresses.length; let i = index">
-              <td>{{ datos.originAddresses[i] }}</td>
-              <td>{{ datos[i] }}</td>
-              <td>{{ datos.rows[0].elements[i].distance.text }}</td>
-              <td>{{ datos.rows[0].elements[i].duration.text }}</td>
-            </tr>
-          </tbody>
-        </table> 
-  </div> -->
+   <div #container *ngIf="resultados.length > 0">
+      <div>
+          <h3>Resultado calculo...</h3>
+        </div>
+      <div>
+        <table>
+          <tr>
+            <td>
+              <table *ngFor="let datos of resultados">
+                <tr>
+                  <td>Origen: {{datos.originAddresses[0]}}</td>
+                  <td>
+                    <table >
+                      <tr *ngFor="let destinos of datos.destinationAddresses">
+                          <td>{{destinos}}</td>
+                      </tr>
+                    </table>
+                  </td>
+                  <td>
+                      <table >
+                        <tr *ngFor="let elementos of datos.rows[0].elements">
+                            <td>
+                                <span *ngIf="elementos.distance">
+                                    {{elementos.distance.text}}
+                                </span>
+                              </td>
+                              <td>
+                              <span *ngIf="elementos.duration">
+                                {{elementos.duration.text}}
+                              </span>
+                            </td>
+                        </tr>
+                      </table>
+                    </td>
+                </tr>
+              </table>
+            </td>
+
+          </tr>
+        </table>
+
+
+
+      </div>
+  </div>
 </div>
 
